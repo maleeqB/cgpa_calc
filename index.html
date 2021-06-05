@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Online Utility that automates the process of Calculating Students CPGA. Simply Add all the desired course into the Table">
+  <meta name="keywords" content="CGPA,C/GPA,GP,Calculator">
+
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+
+  <title>Online CGPA Calculator</title>
+
+  <style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    }
+    td{
+      text-align: center;
+    }
+    #userInput{
+      visibility: hidden;
+    }
+    #errorMsg{
+      color: red;
+    }
+    #computeCGPA{
+      height: 50px;
+      margin-top: 20px;
+      font-weight: bold;
+      border-radius: 50%;
+      background-color: tomato;
+    }
+    #instruction{
+      margin: 20px;
+      font-size: 20px;
+    }
+    #result{
+      text-align: center;
+      background-color: silver;
+      color: tomato;
+      font-size: 30px;
+      margin-left: 5%;
+    }
+    #invalidCourseEntryGuide{
+      font-size: 15px;
+    }
+    footer{
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>CGPA Calculator</h1>
+  <span><em>AbdulMalik Bello</em></span>
+  <img src="cgpa_logo.png">
+  <p>This free utility performs the boring task of Calculating your CPGA, just add all your Courses and grades in the table below</p>
+  
+  <div id="instruction">
+    <b>NOTE: </b>Click the <em>Add Course</em> button below to add Your Courses in the following format -
+    <br><br>
+    COURSE CODE: Usually 3-digit, not necessarily  distinct for each subject
+    <br>
+    COURSE UNIT: Unit for the entered Course - It must be a digit
+    <br>
+    GRADE SCORED: Grade scored - Valid Grades are A,B,C,D,E,F 
+    <br><br>
+    <em>To remove a Course from the Table, simply click the </em> <span><b>x</b></span> <em> character next to the given course entry</em>
+    <br><br>
+    <span id="invalidCourseEntryGuide">
+      The <b>Add Course</b> button is disabled once clicked until a course is succesfully added
+    <br>
+    In case of Invalid inputs, an Error message is displayed, Click the <b>OK</b> button and then try again with Valid Inputs 
+  </span>
+  </div>
+  <div>
+    <table id="coursesTable">
+      <tr><th>Course Code</th><th>Course Unit</th><th>Grade Scored</th></tr>
+    </table>    
+    <button id="addCourse">Add Course</button>
+  </div>
+
+  <div id="userInput" class="userInput">
+    <input type="text" id="code" placeholder="Course Code" size="10">
+    <input type="text" id="unit" placeholder="Course Unit" size="10">
+    <input type="text" id="grade" placeholder="Grade Scored" size="10">
+    <button id="add">Add</button>
+    <br>
+    <span id="errorMsg"></span>
+  </div>
+
+  <div>
+    <button id="computeCGPA">Compute CGPA</button>
+    <span id="result"></span>
+  </div>
+
+  <footer>
+    &copy;<span id="year"></span> <a href="https://api.whatsapp.com/send?phone=+2348164408811">AbdulMalik Bello</a>, Computer Engineering - University of Ilorin
+  </footer>
+
+
+
+  <script>
+    var addCourseBtn = document.getElementById("addCourse")
+    var userInput = document.getElementById("userInput")
+    var coursesTable = document.getElementById("coursesTable")
+
+    addEvent(addCourseBtn, 'click', function(){
+      addCourseBtn.disabled = true
+      userInput.style.visibility = "visible"  
+    })
+
+
+    var addBtn = document.getElementById("add")
+
+    var courseCode = document.getElementById("code")
+    var courseUnit = document.getElementById("unit")
+    var courseGrade = document.getElementById("grade")
+    addEvent(addBtn, "click", function(){
+      addBtn.disabled = true
+      if(courseCode.value == "" || courseUnit.value == "" || courseGrade.value == ""){
+        document.getElementById("errorMsg").innerHTML = "ERROR: Empty Input Field"
+        let errorBtn = document.createElement("button")
+        errorBtn.innerHTML = "OK"
+        document.getElementById("errorMsg").appendChild(errorBtn)
+        
+        addEvent(errorBtn, 'click', resetInput)
+      } else verifyCourseInput(courseCode.value, courseUnit.value, courseGrade.value)
+    })
+
+    
+    function verifyCourseInput(code, unit, grade){
+      var validGrades = ['A','B','C','D','E','F']
+      var errorMsg = ""
+
+      //Capatilize the Grade value to make lower case grades valid input
+      grade = grade.toUpperCase()
+
+      if(!(/^\d+$/.test(unit)) || !(validGrades.includes(grade))){
+        if(!(/^\d+$/.test(unit))){
+        errorMsg += "<br>INVALID UNIT: " + unit + "<br>Course Unit must be digit"
+      } 
+       if(!(validGrades.includes(grade))){
+        errorMsg += "<br>INVALID GRADE: " + grade + " entered <br> Valid grades are: " + validGrades
+      }
+      document.getElementById("errorMsg").innerHTML = errorMsg
+
+      let errorBtn = document.createElement("button")
+      errorBtn.innerHTML = "OK"
+      document.getElementById("errorMsg").appendChild(errorBtn)
+
+      addEvent(errorBtn, 'click', resetInput)
+      } else{
+        addCourseToTable(code, unit, grade)
+
+        resetInput()
+        userInput.style.visibility = "hidden"
+        addCourseBtn.disabled = false
+      }     
+
+    }
+
+    function resetInput(){
+      document.getElementById("errorMsg").innerHTML = document.getElementById("code").value = document.getElementById("unit").value = document.getElementById("grade").value = ""
+      document.getElementById("add").disabled = false
+    }
+
+    function addCourseToTable(code, unit, grade){
+      var row = coursesTable.insertRow()
+      var cell0 = row.insertCell(0)
+      var cell1 = row.insertCell(1)
+      var cell2 = row.insertCell(2)
+      var cell3 = row.insertCell(3)
+      cell0.innerHTML = code
+      cell1.innerHTML = unit  
+      cell2.innerHTML = grade
+
+      cell3.style.borderTopStyle = "hidden"
+      cell3.style.borderRightStyle = "hidden"
+      cell3.style.borderBottomStyle = "hidden"
+
+
+      cell3.innerHTML = "<button>x</button>"
+      addEvent(cell3.querySelector("button"), "click", function(){
+        coursesTable.deleteRow(cell3.parentElement.rowIndex)
+      })
+    }
+
+
+    var computeCGPABtn = document.getElementById("computeCGPA")
+    addEvent(computeCGPABtn, 'click', computeCGPA)
+
+    function computeCGPA(){
+
+      var totalCourseGrades = 0;
+      var totalCourseUnits = 0;
+      var resultContainer = document.getElementById("result");
+
+
+      if(coursesTable.querySelectorAll("tr").length < 2){
+        resultContainer.innerHTML = "<b>ERROR: No Course Entry added so-far</b>"
+        return
+      }
+
+      for(let i=0;i<getAllGradeScored().length;i++){
+        totalCourseGrades += getAllGradeScored()[i]
+        totalCourseUnits += getAllCourseUnits()[i]
+      }
+      var result = (totalCourseGrades / totalCourseUnits).toFixed(2)
+      
+      resultContainer.innerHTML = "<b>"+result+"</b>" 
+    }
+
+    function getAllCourseUnits(){
+      var courseUnits = []
+      for (let i = 1; i<coursesTable.querySelectorAll("tr").length;i++){ 
+        let row = coursesTable.querySelectorAll("tr")[i]
+        let courseUnit = row.querySelectorAll("td")[1].innerHTML
+        courseUnits.push(parseInt(courseUnit))
+      }
+      return courseUnits
+    }
+
+    function getAllGradeScored(){
+      var courseGrades = []
+      let gradePoints = {"A":5, "B":4, "C":3, "D":2, "E":1, "F":0}
+
+      for (let i = 1; i<coursesTable.querySelectorAll("tr").length;i++){ 
+        let row = coursesTable.querySelectorAll("tr")[i]
+        let courseUnit = row.querySelectorAll("td")[1].innerHTML
+        let gradeScored = row.querySelectorAll("td")[2].innerHTML
+        courseGrades.push(courseUnit * gradePoints[gradeScored])
+      }
+      return courseGrades
+    }
+
+
+    document.getElementById("year").innerHTML = new Date().getFullYear()
+    function addEvent(element, myEvent, fnc) { return ((element.attachEvent) ? element.attachEvent('on' + myEvent, fnc) : element.addEventListener(myEvent, fnc, false)); }
+  </script>
+</body>
+</html>
